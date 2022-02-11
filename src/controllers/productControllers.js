@@ -15,7 +15,7 @@ export async function getProducts(req, res) {
   const products = await productsCollection.find({ category }).toArray();
   res.send(products);
   if (!products) {
-    res.status(404).send("bananinha");
+    res.sendStatus(404);
     return;
   }
 }
@@ -31,7 +31,6 @@ export async function createProduct(req, res) {
   }
 
   const product = req.body.product;
-  console.log(product);
   const productExists = await productsCollection.findOne({
     name: product.name,
   });
