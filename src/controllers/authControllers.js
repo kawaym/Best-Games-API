@@ -1,6 +1,7 @@
 import db from "../db.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
+import { ObjectId } from "mongodb";
 
 export async function login(req, res) {
   const user = req.body;
@@ -8,7 +9,6 @@ export async function login(req, res) {
   const userFinded = await db
     .collection("users")
     .findOne({ email: user.email });
-  console.log(userFinded);
 
   if (!userFinded) {
     res.status(401).send("");
@@ -20,7 +20,7 @@ export async function login(req, res) {
       .insertOne({ userId: userFinded._id, token });
 
     delete userFinded.password;
-    res.send({ user: userFinded.email, token });
+    res.send({ user: userFinded._id, token });
   } else {
     res.sendStatus(401);
   }
@@ -59,8 +59,7 @@ export async function getUserInfo(req, res) {
   }
 
   const usersCollection = db.collection("users");
-  console.log(user);
-  const existingUser = await usersCollection.findOne({ email: user });
+  const existingUser = await usersCollection.findOne({ _id: user });
   if (!existingUser) {
     res.sendStatus(404);
     return;
@@ -89,7 +88,8 @@ export async function createFavorite(req, res) {
     return;
   }
 
-  const existingUser = await usersCollection.findOne({ email: product.email });
+  const userId = ObjectId(product.user)
+  const existingUser = await usersCollection.findOne({ _id: userId });
   if (!existingUser) {
     res.sendStatus(422);
     return;
@@ -106,12 +106,11 @@ export async function createFavorite(req, res) {
     const newFavorits = existingUser.favorits;
     newFavorits.push(existingProduct);
     await usersCollection.replaceOne(
-      { email: product.email },
+      { _id: userId },
       { ...existingUser, favorits: newFavorits }
     );
     res.sendStatus(201);
   } catch (error) {
-    console.log(error);
     res.sendStatus(500);
   }
 }
@@ -121,15 +120,15 @@ export async function createInCart(req, res) {
   const usersCollection = db.collection("users");
 
   const product = req.body;
-  console.log(product.id);
 
   const existingProduct = await productsCollection.findOne({ id: product.id });
   if (!existingProduct) {
     res.sendStatus(422);
     return;
   }
+  const userId = ObjectId(product.user)
 
-  const existingUser = await usersCollection.findOne({ email: product.email });
+  const existingUser = await usersCollection.findOne({ _id: userId });
   if (!existingUser) {
     res.sendStatus(422);
     return;
@@ -146,12 +145,11 @@ export async function createInCart(req, res) {
     const newCart = existingUser.shopping;
     newCart.push(existingProduct);
     await usersCollection.replaceOne(
-      { email: product.email },
+      { _id: userId  },
       { ...existingUser, shopping: newCart }
     );
     res.sendStatus(201);
   } catch (error) {
-    console.log(error);
     res.sendStatus(500);
   }
 }
@@ -160,14 +158,15 @@ export async function deleteFavorite(req, res) {
   const productsCollection = db.collection("products");
   const usersCollection = db.collection("users");
 
-  const product = req.body;
+  const product = req.headers;
   const existingProduct = await productsCollection.findOne({ id: product.id });
   if (!existingProduct) {
     res.sendStatus(422);
     return;
   }
 
-  const existingUser = await usersCollection.findOne({ email: product.email });
+  const userId = ObjectId(product.user)
+  const existingUser = await usersCollection.findOne({ _id: userId });
   if (!existingUser) {
     res.sendStatus(422);
     return;
@@ -185,12 +184,11 @@ export async function deleteFavorite(req, res) {
       return item.id !== existingProduct.id;
     });
     await usersCollection.replaceOne(
-      { email: product.email },
+      { _id: userId },
       { ...existingUser, favorits: newFavorits }
     );
     res.sendStatus(201);
   } catch (error) {
-    console.log(error);
     res.sendStatus(500);
   }
 }
@@ -199,14 +197,15 @@ export async function deleteInCart(req, res) {
   const productsCollection = db.collection("products");
   const usersCollection = db.collection("users");
 
-  const product = req.body;
+  const product = req.headers;
   const existingProduct = await productsCollection.findOne({ id: product.id });
   if (!existingProduct) {
     res.sendStatus(422);
     return;
   }
 
-  const existingUser = await usersCollection.findOne({ email: product.email });
+  const userId = ObjectId(product.user)
+  const existingUser = await usersCollection.findOne({ _id: userId });
   if (!existingUser) {
     res.sendStatus(422);
     return;
@@ -224,12 +223,11 @@ export async function deleteInCart(req, res) {
       return item.id !== existingProduct.id;
     });
     await usersCollection.replaceOne(
-      { email: product.email },
+      { _id: userId },
       { ...existingUser, shopping: newCart }
     );
     res.sendStatus(201);
   } catch (error) {
-    console.log(error);
     res.sendStatus(500);
   }
 }
