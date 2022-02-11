@@ -14,7 +14,7 @@ export async function getProducts(req, res) {
 
   const products = await productsCollection.find({ category }).toArray();
   if (!products) {
-    res.status(404).send("bananinha");
+    res.sendStatus(404);
     return;
   }
   res.send(products).status(201);
