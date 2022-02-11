@@ -1,5 +1,5 @@
 import db from "../db.js";
-import jwt from "jsonwebtoken";
+import { v4 as uuid } from "uuid";
 
 export async function getProducts(req, res) {
   const productsCollection = db.collection("products");
@@ -13,7 +13,7 @@ export async function getProducts(req, res) {
   }
 
   const products = await productsCollection.find({ category }).toArray();
-  res.send(products)
+  res.send(products);
   if (!products) {
     res.status(404).send("bananinha");
     return;
@@ -32,20 +32,23 @@ export async function createProduct(req, res) {
 
   const product = req.body.product;
   console.log(product);
-  const productExists = await productsCollection.findOne({ name: product.name });
+  const productExists = await productsCollection.findOne({
+    name: product.name,
+  });
   if (productExists) {
     res.sendStatus(403);
     return;
   }
 
-  try{
+  try {
+    const token = uuid();
     await productsCollection.insertOne({
       ...product,
-      category
+      category,
+      id: token,
     });
     res.sendStatus(201);
-  }
-  catch(error){
+  } catch (error) {
     res.sendStatus(500);
   }
 }

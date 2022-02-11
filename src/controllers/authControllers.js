@@ -41,3 +41,34 @@ export async function registerUser(req, res) {
         res.sendStatus(500);
     }
 }
+
+export async function getUserInfo(req, res){
+    const user = req.headers.user;
+    const solicitedInfo = req.headers.info;
+    if (!user || !solicitedInfo){
+        res.sendStatus(422);
+        return;
+    }
+
+    const usersCollection = db.collection('users');
+    console.log(user);
+    const existingUser = await usersCollection.findOne({name: user});
+    if(!existingUser){
+        res.sendStatus(404);
+        return;
+    }
+
+    if (solicitedInfo === 'favorites'){
+        const favorites = await existingUser.favorits;
+        res.send(favorites).status(200);
+    }
+    else if (solicitedInfo === 'cart'){
+        const cart = await existingUser.shopping;
+        res.send(cart).status(200);
+    }
+    else {
+        res.sendStatus(422);
+    }
+
+
+}
