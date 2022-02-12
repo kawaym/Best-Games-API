@@ -7,17 +7,17 @@ export async function getProducts(req, res) {
 
   const categoryExists = await productsCollection.find({ category: category });
 
-  if (!categoryExists) {
+  if (categoryExists.length === 0) {
     res.sendStatus(401);
     return;
   }
 
   const products = await productsCollection.find({ category }).toArray();
-  res.send(products);
   if (!products) {
     res.sendStatus(404);
     return;
   }
+  res.send(products).status(201);
 }
 
 export async function createProduct(req, res) {
