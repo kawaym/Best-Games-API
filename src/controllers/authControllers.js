@@ -57,9 +57,9 @@ export async function getUserInfo(req, res) {
     res.sendStatus(422);
     return;
   }
-
+  const userId = ObjectId(user);
   const usersCollection = db.collection("users");
-  const existingUser = await usersCollection.findOne({ _id: user });
+  const existingUser = await usersCollection.findOne({ _id: userId });
   if (!existingUser) {
     res.sendStatus(404);
     return;
@@ -81,14 +81,13 @@ export async function createFavorite(req, res) {
   const usersCollection = db.collection("users");
 
   const product = req.body;
-
   const existingProduct = await productsCollection.findOne({ id: product.id });
   if (!existingProduct) {
     res.sendStatus(422);
     return;
   }
 
-  const userId = ObjectId(product.user)
+  const userId = ObjectId(product.user);
   const existingUser = await usersCollection.findOne({ _id: userId });
   if (!existingUser) {
     res.sendStatus(422);
@@ -126,7 +125,7 @@ export async function createInCart(req, res) {
     res.sendStatus(422);
     return;
   }
-  const userId = ObjectId(product.user)
+  const userId = ObjectId(product.user);
 
   const existingUser = await usersCollection.findOne({ _id: userId });
   if (!existingUser) {
@@ -145,7 +144,7 @@ export async function createInCart(req, res) {
     const newCart = existingUser.shopping;
     newCart.push(existingProduct);
     await usersCollection.replaceOne(
-      { _id: userId  },
+      { _id: userId },
       { ...existingUser, shopping: newCart }
     );
     res.sendStatus(201);
@@ -165,7 +164,7 @@ export async function deleteFavorite(req, res) {
     return;
   }
 
-  const userId = ObjectId(product.user)
+  const userId = ObjectId(product.user);
   const existingUser = await usersCollection.findOne({ _id: userId });
   if (!existingUser) {
     res.sendStatus(422);
@@ -204,7 +203,7 @@ export async function deleteInCart(req, res) {
     return;
   }
 
-  const userId = ObjectId(product.user)
+  const userId = ObjectId(product.user);
   const existingUser = await usersCollection.findOne({ _id: userId });
   if (!existingUser) {
     res.sendStatus(422);
