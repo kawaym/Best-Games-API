@@ -30,9 +30,9 @@ export async function createProduct(req, res) {
     return;
   }
 
-  const product = req.body.product;
+  const product = req.body.name;
   const productExists = await productsCollection.findOne({
-    name: product.name,
+    name: product,
   });
   if (productExists) {
     res.sendStatus(403);
@@ -42,8 +42,7 @@ export async function createProduct(req, res) {
   try {
     const token = uuid();
     await productsCollection.insertOne({
-      ...product,
-      category,
+      ...req.body,
       id: token,
     });
     res.sendStatus(201);
