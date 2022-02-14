@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const server = express();
-server.use(cors());
+server.use(cors({origin: /\.herokuapp\.com$/}));
 server.use(json());
 server.use(router);
 
