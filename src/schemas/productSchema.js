@@ -5,7 +5,7 @@ const productSchema = joi.object({
   price: joi.number().required(),
   description: joi.string().required(),
   image: joi.string().uri().required(),
-  category: joi.string.valid('games', 'consoles', 'collectibles', 'accessories')
+  category: joi.string().valid('games', 'consoles', 'collectibles', 'accessories')
 });
 
 export default productSchema;
